@@ -15,15 +15,22 @@ await bot.login({
 
 const jetstream = new Jetstream({
   ws: WebSocket,
+  wantedCollections: ["app.bsky.graph.verification"],
+  cursor: process.env.JETSTREAM_CURSOR
+    ? parseInt(process.env.JETSTREAM_CURSOR)
+    : undefined,
 });
 jetstream.start();
 
 jetstream.onCreate("app.bsky.graph.verification", (event) => {
   console.log(event);
-  const richText = new RichText()
-    .addMention(event.did, event.did)
-    .addText(" has been verified.");
-  bot.post({
-    text: richText,
-  });
+  if (event.did === "did:plc:z72i7hdynmk6r22z27h6tvur") {
+    const richText = new RichText()
+      // @ts-ignore
+      .addMention(event.commit.record.handle, event.commit.record.did)
+      .addText(" has been verified by Bluesky.");
+    bot.post({
+      text: richText,
+    });
+  }
 });
