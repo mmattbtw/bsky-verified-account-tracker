@@ -27,7 +27,7 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
   if (event.did === "did:plc:z72i7hdynmk6r22z27h6tvur") {
     const richText = new RichText()
       // @ts-ignore
-      .addMention(`${event.commit.record.handle}`, event.commit.record.subject)
+      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
       .addText(" has been verified by Bluesky.");
     bot.post({
       text: richText,
