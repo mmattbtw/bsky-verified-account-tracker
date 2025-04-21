@@ -1,0 +1,277 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@atcute/bluesky':
+        specifier: ^2.0.2
+        version: 2.0.2(@atcute/client@3.0.1)
+      '@atcute/bluesky-richtext-builder':
+        specifier: ^2.0.0
+        version: 2.0.0(@atcute/bluesky@2.0.2(@atcute/client@3.0.1))(@atcute/client@3.0.1)
+      '@atcute/client':
+        specifier: ^3.0.1
+        version: 3.0.1
+      '@skyware/bot':
+        specifier: ^0.3.11
+        version: 0.3.11
+      '@skyware/jetstream':
+        specifier: ^0.2.2
+        version: 0.2.2(@atcute/client@3.0.1)
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
+    devDependencies:
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
+
+packages:
+
+  '@atcute/bluesky-richtext-builder@1.0.2':
+    resolution: {integrity: sha512-sa+9B5Ygb1GcWeMpav9RVBRdFLL5snZEoFFF2RkTaNr61m/cLd5lk97QJs+t9LXUEl5cfHS3jXujywFrGXZj9w==}
+    peerDependencies:
+      '@atcute/bluesky': ^1.0.0
+      '@atcute/client': ^1.0.0 || ^2.0.0
+
+  '@atcute/bluesky-richtext-builder@2.0.0':
+    resolution: {integrity: sha512-eWpwOaufN3XFfb5lsxPfSBih0vgACnNXY8cq3ekibRMPEXbcCrHw3EyJshs7kPJjyyXZ5JJ0I9cUZMIoFK8VIA==}
+    peerDependencies:
+      '@atcute/bluesky': ^2.0.0
+      '@atcute/client': ^3.0.0
+
+  '@atcute/bluesky@1.0.15':
+    resolution: {integrity: sha512-+EFiybmKQ97aBAgtaD+cKRJER5AMn3cZMkEwEg/pDdWyzxYJ9m1UgemmLdTgI8VrxPufKqdXS2nl7uO7TY6BPA==}
+    peerDependencies:
+      '@atcute/client': ^1.0.0 || ^2.0.0
+
+  '@atcute/bluesky@2.0.2':
+    resolution: {integrity: sha512-xU+9Rp8bzc9AOnWSc11M1urRppDt3BiWR7v2QrLt3Qoysa5jvL8j2p2w4iRT8vLByz8Q+Xgk5Kz4zWVx1zCiug==}
+    peerDependencies:
+      '@atcute/client': ^3.0.0
+
+  '@atcute/car@1.1.1':
+    resolution: {integrity: sha512-j6HY//ttIFCbOioDlEowKn2WOGeNavJenZkAP+wWIhsbRlK+V4+TpnJ38IX/VYfMpQHrKweh3W94wRCYp6L5Zg==}
+
+  '@atcute/cbor@1.0.7':
+    resolution: {integrity: sha512-z3chucgCqjAN36ySvUVl1VSwtGME4CDS173eaaEfiTSpRIQ6ewKpKlkzapLUNqtLU9iBx884b9c2j6kjEyn1XA==}
+
+  '@atcute/cid@1.0.3':
+    resolution: {integrity: sha512-BZbs+Xt0yMci0I2dLqqYsN76ua8lkMk/HQfEIKr7g2XMBlSc0XNCXfZdbAWPwiCK/NuGaPBocYMRwApd4dF2Qg==}
+
+  '@atcute/client@2.0.9':
+    resolution: {integrity: sha512-QNDm9gMP6x9LY77ArwY+urQOBtQW74/onEAz42c40JxRm6Rl9K9cU4ROvNKJ+5cpVmEm1sthEWVRmDr5CSZENA==}
+
+  '@atcute/client@3.0.1':
+    resolution: {integrity: sha512-j51SuQYQj5jeKrx1DCXx+Q3fpVvO0JYGnKnJAdDSlesSLjPXjvnx1abC+hkuro58KRHHJvRA6P1MC0pmJsWfcg==}
+
+  '@atcute/multibase@1.1.3':
+    resolution: {integrity: sha512-vQQO0tDuQPguBvHdgV3ryn7R8U6beQ50KA/juYm+dCeT/3hOK2stMbX+IaW8JEuwkT5lJsU8wDIOicQT4mB7Ag==}
+
+  '@atcute/ozone@1.0.12':
+    resolution: {integrity: sha512-eogx/FCF6X3WTwAPxgG8RcrziuOUcJvMu+qHodeVcLSQ7QJvw2H/Q5V0HpnZegUOY5aRGKb5RvLk2SeZq3LCeA==}
+    peerDependencies:
+      '@atcute/bluesky': ^1.0.0
+      '@atcute/client': ^1.0.0 || ^2.0.0
+
+  '@atcute/uint8array@1.0.1':
+    resolution: {integrity: sha512-AAnlFKyfDRgb9GNZJbhQ6OuMhbmNPirQyapb8KnmcEhxQZ3+tt+4NcwqekEegY4MpNqSTYeeTdyxq0wGZv1JHg==}
+
+  '@atcute/varint@1.0.2':
+    resolution: {integrity: sha512-0O31hePzzr4O3NGWHUKKOyta6CGSL+AtN8iir8grGxu9jXyI7DBARlw6PbgKA6uTAvsXdpmRmF8MX+p0TsLnNg==}
+
+  '@skyware/bot@0.3.11':
+    resolution: {integrity: sha512-fG4uvD/3+ynlQPRHv6pz4kk+5fbDNJYTORbLXwmlwWAzJ7FSBkahG1NeK2M+hqIYBVqdzAI5QqcM17fwJXeZeQ==}
+
+  '@skyware/firehose@0.3.2':
+    resolution: {integrity: sha512-CmRaw3lFPEd9euFGV+K/n/TF/o0Rre87oJP5pswC8IExj/qQnWVoncIulAJbL3keUCm5mlt49jCiiqfQXVjigg==}
+
+  '@skyware/jetstream@0.1.9':
+    resolution: {integrity: sha512-87NGqRSmEYmvEuVY0DKZ2ZRbL72tExtDuV+PDvywYqukSp3F/it+9wnU5Xb/Is/pf+KSbd6lWvrnE31HgxJpJg==}
+
+  '@skyware/jetstream@0.2.2':
+    resolution: {integrity: sha512-d1MtWPTIFEciSzV8OClXZCJoz0DJ7aupt4EZSwpGAASYG0ZIPmZTt7RVJkoFzQyqRPHAMD7CvEwu0ut3MHX1og==}
+
+  '@types/node@22.14.1':
+    resolution: {integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
+  dotenv@16.5.0:
+    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
+    engines: {node: '>=12'}
+
+  event-target-polyfill@0.0.4:
+    resolution: {integrity: sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==}
+
+  partysocket@1.1.3:
+    resolution: {integrity: sha512-87Jd/nqPoWnVfzHE6Z12WLWTJ+TAgxs0b7i2S163HfQSrVDUK5tW/FC64T5N8L5ss+gqF+EV0BwjZMWggMY3UA==}
+
+  quick-lru@7.0.1:
+    resolution: {integrity: sha512-kLjThirJMkWKutUKbZ8ViqFc09tDQhlbQo2MNuVeLWbRauqYP96Sm6nzlQ24F0HFjUNZ4i9+AgldJ9H6DZXi7g==}
+    engines: {node: '>=18'}
+
+  rate-limit-threshold@0.1.5:
+    resolution: {integrity: sha512-75vpvXC/ZqQJrFDp0dVtfoXZi8kxQP2eBuxVYFvGDfnHhcgE+ZG870u4ItQhWQh54Y6nNwOaaq5g3AL9n27lTg==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+  ws@8.18.1:
+    resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+snapshots:
+
+  '@atcute/bluesky-richtext-builder@1.0.2(@atcute/bluesky@1.0.15(@atcute/client@2.0.9))(@atcute/client@2.0.9)':
+    dependencies:
+      '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
+      '@atcute/client': 2.0.9
+
+  '@atcute/bluesky-richtext-builder@2.0.0(@atcute/bluesky@2.0.2(@atcute/client@3.0.1))(@atcute/client@3.0.1)':
+    dependencies:
+      '@atcute/bluesky': 2.0.2(@atcute/client@3.0.1)
+      '@atcute/client': 3.0.1
+
+  '@atcute/bluesky@1.0.15(@atcute/client@2.0.9)':
+    dependencies:
+      '@atcute/client': 2.0.9
+
+  '@atcute/bluesky@1.0.15(@atcute/client@3.0.1)':
+    dependencies:
+      '@atcute/client': 3.0.1
+
+  '@atcute/bluesky@2.0.2(@atcute/client@3.0.1)':
+    dependencies:
+      '@atcute/client': 3.0.1
+
+  '@atcute/car@1.1.1':
+    dependencies:
+      '@atcute/cbor': 1.0.7
+      '@atcute/cid': 1.0.3
+      '@atcute/varint': 1.0.2
+    optional: true
+
+  '@atcute/cbor@1.0.7':
+    dependencies:
+      '@atcute/cid': 1.0.3
+      '@atcute/multibase': 1.1.3
+    optional: true
+
+  '@atcute/cid@1.0.3':
+    dependencies:
+      '@atcute/multibase': 1.1.3
+      '@atcute/varint': 1.0.2
+    optional: true
+
+  '@atcute/client@2.0.9': {}
+
+  '@atcute/client@3.0.1': {}
+
+  '@atcute/multibase@1.1.3':
+    dependencies:
+      '@atcute/uint8array': 1.0.1
+    optional: true
+
+  '@atcute/ozone@1.0.12(@atcute/bluesky@1.0.15(@atcute/client@2.0.9))(@atcute/client@2.0.9)':
+    dependencies:
+      '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
+      '@atcute/client': 2.0.9
+
+  '@atcute/uint8array@1.0.1':
+    optional: true
+
+  '@atcute/varint@1.0.2':
+    optional: true
+
+  '@skyware/bot@0.3.11':
+    dependencies:
+      '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
+      '@atcute/bluesky-richtext-builder': 1.0.2(@atcute/bluesky@1.0.15(@atcute/client@2.0.9))(@atcute/client@2.0.9)
+      '@atcute/client': 2.0.9
+      '@atcute/ozone': 1.0.12(@atcute/bluesky@1.0.15(@atcute/client@2.0.9))(@atcute/client@2.0.9)
+      quick-lru: 7.0.1
+      rate-limit-threshold: 0.1.5
+    optionalDependencies:
+      '@skyware/firehose': 0.3.2
+      '@skyware/jetstream': 0.1.9(@atcute/client@2.0.9)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@skyware/firehose@0.3.2':
+    dependencies:
+      '@atcute/car': 1.1.1
+      '@atcute/cbor': 1.0.7
+      ws: 8.18.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    optional: true
+
+  '@skyware/jetstream@0.1.9(@atcute/client@2.0.9)':
+    dependencies:
+      '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
+      partysocket: 1.1.3
+    transitivePeerDependencies:
+      - '@atcute/client'
+    optional: true
+
+  '@skyware/jetstream@0.2.2(@atcute/client@3.0.1)':
+    dependencies:
+      '@atcute/bluesky': 1.0.15(@atcute/client@3.0.1)
+      partysocket: 1.1.3
+    transitivePeerDependencies:
+      - '@atcute/client'
+
+  '@types/node@22.14.1':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.14.1
+
+  dotenv@16.5.0: {}
+
+  event-target-polyfill@0.0.4: {}
+
+  partysocket@1.1.3:
+    dependencies:
+      event-target-polyfill: 0.0.4
+
+  quick-lru@7.0.1: {}
+
+  rate-limit-threshold@0.1.5: {}
+
+  typescript@5.8.3: {}
+
+  undici-types@6.21.0: {}
+
+  ws@8.18.1: {}
