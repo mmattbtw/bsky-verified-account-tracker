@@ -86,50 +86,51 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
   }
 });
 
-jetstream.onDelete("app.bsky.graph.verification", (event) => {
-  console.log(event);
-  writeFileSync("cursor.txt", event.time_us.toString());
+// jetstream.onDelete("app.bsky.graph.verification", (event) => {
+//   console.log(event);
+//   writeFileSync("cursor.txt", event.time_us.toString());
 
-  if (event.did === "did:plc:z72i7hdynmk6r22z27h6tvur") {
-    const richText = new RichText()
-      .addText("❌ ")
-      // @ts-ignore
-      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
-      .addText(" has been unverified.");
-    bot.post({ text: richText });
-  }
-  if (event.did === "did:plc:b2kutgxqlltwc6lhs724cfwr") {
-    const richText = new RichText()
-      .addText("❌ ")
-      // @ts-ignore
-      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
-      .addText(" has been unverified by ")
-      .addMention(
-        // TODO: probably don't hardcode this handle.
-        `@theathletic.bsky.social`,
-        "did:plc:b2kutgxqlltwc6lhs724cfwr"
-      )
-      .addText(".");
-    bot.post({ text: richText });
-  }
-  if (event.did === "did:plc:inz4fkbbp7ms3ixufw6xuvdi") {
-    const richText = new RichText()
-      .addText("❌ ")
-      // @ts-ignore
-      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
-      .addText(" has been unverified by ")
-      .addMention(`@wired.com`, "did:plc:inz4fkbbp7ms3ixufw6xuvdi")
-      .addText(".");
-    bot.post({ text: richText });
-  }
-  if (event.did === "did:plc:eclio37ymobqex2ncko63h4r") {
-    const richText = new RichText()
-      .addText("❌ ")
-      // @ts-ignore
-      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
-      .addText(" has been unverified by ")
-      .addMention(`@nytimes.com`, "did:plc:eclio37ymobqex2ncko63h4r")
-      .addText(".");
-    bot.post({ text: richText });
-  }
-});
+//   // if (event.did === "did:plc:z72i7hdynmk6r22z27h6tvur") {
+//   const richText = new RichText()
+//     .addText("❌ ")
+//     // @ts-ignore
+//     // .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
+//     .addText(`${event.commit.record.handle}`)
+//     .addText(" has been unverified.");
+//   bot.post({ text: richText });
+//   // }
+//   if (event.did === "did:plc:b2kutgxqlltwc6lhs724cfwr") {
+//     const richText = new RichText()
+//       .addText("❌ ")
+//       // @ts-ignore
+//       .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
+//       .addText(" has been unverified by ")
+//       .addMention(
+//         // TODO: probably don't hardcode this handle.
+//         `@theathletic.bsky.social`,
+//         "did:plc:b2kutgxqlltwc6lhs724cfwr"
+//       )
+//       .addText(".");
+//     bot.post({ text: richText });
+//   }
+//   if (event.did === "did:plc:inz4fkbbp7ms3ixufw6xuvdi") {
+//     const richText = new RichText()
+//       .addText("❌ ")
+//       // @ts-ignore
+//       .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
+//       .addText(" has been unverified by ")
+//       .addMention(`@wired.com`, "did:plc:inz4fkbbp7ms3ixufw6xuvdi")
+//       .addText(".");
+//     bot.post({ text: richText });
+//   }
+//   if (event.did === "did:plc:eclio37ymobqex2ncko63h4r") {
+//     const richText = new RichText()
+//       .addText("❌ ")
+//       // @ts-ignore
+//       .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
+//       .addText(" has been unverified by ")
+//       .addMention(`@nytimes.com`, "did:plc:eclio37ymobqex2ncko63h4r")
+//       .addText(".");
+//     bot.post({ text: richText });
+//   }
+// });
