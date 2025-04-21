@@ -1,15 +1,14 @@
 # bsky-verified-account-tracker
+[Follow Account on Bluesky](https://bsky.app/profile/did:plc:k3lft27u2pjqp2ptidkne7xr)
 
 To install dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
 To run:
 
 ```bash
-bun run index.ts
+pnpm build && pnpm start
 ```
-
-This project was created using `bun init` in bun v1.1.33. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
