@@ -29,7 +29,7 @@ const jetstream = new Jetstream({
 });
 jetstream.start();
 
-jetstream.onCreate("app.bsky.graph.verification", (event) => {
+jetstream.onCreate("app.bsky.graph.verification", async (event) => {
   console.log(event);
   // Save the current cursor to file
   writeFileSync("cursor.txt", event.time_us.toString());
@@ -40,8 +40,21 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
       // @ts-ignore
       .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
       .addText(" has been verified by Bluesky.");
-    bot.post({
+    await bot.post({
       text: richText,
+    });
+
+    // All Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcmewutk2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
+    // Bluesky Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcmmcczc2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
     });
   }
   if (event.did === "did:plc:b2kutgxqlltwc6lhs724cfwr") {
@@ -56,8 +69,21 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
         "did:plc:b2kutgxqlltwc6lhs724cfwr"
       )
       .addText(".");
-    bot.post({
+    await bot.post({
       text: richText,
+    });
+
+    // All Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcmewutk2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
+    // The Athletic Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcntqojk2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
     });
   }
   if (event.did === "did:plc:inz4fkbbp7ms3ixufw6xuvdi") {
@@ -68,8 +94,22 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
       .addText(" has been verified by ")
       .addMention(`@wired.com`, "did:plc:inz4fkbbp7ms3ixufw6xuvdi")
       .addText(".");
-    bot.post({
+    await bot.post({
       text: richText,
+    });
+
+    // All Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcmewutk2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
+
+    // Wired Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcn3ndvs2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
     });
   }
   if (event.did === "did:plc:eclio37ymobqex2ncko63h4r") {
@@ -80,8 +120,22 @@ jetstream.onCreate("app.bsky.graph.verification", (event) => {
       .addText(" has been verified by ")
       .addMention(`@nytimes.com`, "did:plc:eclio37ymobqex2ncko63h4r")
       .addText(".");
-    bot.post({
+    await bot.post({
       text: richText,
+    });
+
+    // All Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcmewutk2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
+
+    // NYT Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: "at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/3lngcngulys2z",
+      // @ts-ignore
+      subject: event.commit.record.subject,
     });
   }
 });

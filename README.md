@@ -26,3 +26,7 @@ To run:
 ```bash
 pnpm build && pnpm start
 ```
+
+For backfilling:
+
+You can start the cursor at `1745254303985050`, that's around the time verification records start getting spit out.
