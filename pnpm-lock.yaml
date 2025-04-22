@@ -8,21 +8,12 @@ importers:
 
   .:
     dependencies:
-      '@atcute/bluesky':
-        specifier: ^2.0.2
-        version: 2.0.2(@atcute/client@3.0.1)
-      '@atcute/bluesky-richtext-builder':
-        specifier: ^2.0.0
-        version: 2.0.0(@atcute/bluesky@2.0.2(@atcute/client@3.0.1))(@atcute/client@3.0.1)
-      '@atcute/client':
-        specifier: ^3.0.1
-        version: 3.0.1
       '@skyware/bot':
         specifier: ^0.3.11
         version: 0.3.11
       '@skyware/jetstream':
         specifier: ^0.2.2
-        version: 0.2.2(@atcute/client@3.0.1)
+        version: 0.2.2(@atcute/client@2.0.9)
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -45,21 +36,10 @@ packages:
       '@atcute/bluesky': ^1.0.0
       '@atcute/client': ^1.0.0 || ^2.0.0
 
-  '@atcute/bluesky-richtext-builder@2.0.0':
-    resolution: {integrity: sha512-eWpwOaufN3XFfb5lsxPfSBih0vgACnNXY8cq3ekibRMPEXbcCrHw3EyJshs7kPJjyyXZ5JJ0I9cUZMIoFK8VIA==}
-    peerDependencies:
-      '@atcute/bluesky': ^2.0.0
-      '@atcute/client': ^3.0.0
-
   '@atcute/bluesky@1.0.15':
     resolution: {integrity: sha512-+EFiybmKQ97aBAgtaD+cKRJER5AMn3cZMkEwEg/pDdWyzxYJ9m1UgemmLdTgI8VrxPufKqdXS2nl7uO7TY6BPA==}
     peerDependencies:
       '@atcute/client': ^1.0.0 || ^2.0.0
-
-  '@atcute/bluesky@2.0.2':
-    resolution: {integrity: sha512-xU+9Rp8bzc9AOnWSc11M1urRppDt3BiWR7v2QrLt3Qoysa5jvL8j2p2w4iRT8vLByz8Q+Xgk5Kz4zWVx1zCiug==}
-    peerDependencies:
-      '@atcute/client': ^3.0.0
 
   '@atcute/car@1.1.1':
     resolution: {integrity: sha512-j6HY//ttIFCbOioDlEowKn2WOGeNavJenZkAP+wWIhsbRlK+V4+TpnJ38IX/VYfMpQHrKweh3W94wRCYp6L5Zg==}
@@ -72,9 +52,6 @@ packages:
 
   '@atcute/client@2.0.9':
     resolution: {integrity: sha512-QNDm9gMP6x9LY77ArwY+urQOBtQW74/onEAz42c40JxRm6Rl9K9cU4ROvNKJ+5cpVmEm1sthEWVRmDr5CSZENA==}
-
-  '@atcute/client@3.0.1':
-    resolution: {integrity: sha512-j51SuQYQj5jeKrx1DCXx+Q3fpVvO0JYGnKnJAdDSlesSLjPXjvnx1abC+hkuro58KRHHJvRA6P1MC0pmJsWfcg==}
 
   '@atcute/multibase@1.1.3':
     resolution: {integrity: sha512-vQQO0tDuQPguBvHdgV3ryn7R8U6beQ50KA/juYm+dCeT/3hOK2stMbX+IaW8JEuwkT5lJsU8wDIOicQT4mB7Ag==}
@@ -154,22 +131,9 @@ snapshots:
       '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
       '@atcute/client': 2.0.9
 
-  '@atcute/bluesky-richtext-builder@2.0.0(@atcute/bluesky@2.0.2(@atcute/client@3.0.1))(@atcute/client@3.0.1)':
-    dependencies:
-      '@atcute/bluesky': 2.0.2(@atcute/client@3.0.1)
-      '@atcute/client': 3.0.1
-
   '@atcute/bluesky@1.0.15(@atcute/client@2.0.9)':
     dependencies:
       '@atcute/client': 2.0.9
-
-  '@atcute/bluesky@1.0.15(@atcute/client@3.0.1)':
-    dependencies:
-      '@atcute/client': 3.0.1
-
-  '@atcute/bluesky@2.0.2(@atcute/client@3.0.1)':
-    dependencies:
-      '@atcute/client': 3.0.1
 
   '@atcute/car@1.1.1':
     dependencies:
@@ -191,8 +155,6 @@ snapshots:
     optional: true
 
   '@atcute/client@2.0.9': {}
-
-  '@atcute/client@3.0.1': {}
 
   '@atcute/multibase@1.1.3':
     dependencies:
@@ -243,9 +205,9 @@ snapshots:
       - '@atcute/client'
     optional: true
 
-  '@skyware/jetstream@0.2.2(@atcute/client@3.0.1)':
+  '@skyware/jetstream@0.2.2(@atcute/client@2.0.9)':
     dependencies:
-      '@atcute/bluesky': 1.0.15(@atcute/client@3.0.1)
+      '@atcute/bluesky': 1.0.15(@atcute/client@2.0.9)
       partysocket: 1.1.3
     transitivePeerDependencies:
       - '@atcute/client'

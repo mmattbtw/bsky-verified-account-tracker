@@ -12,9 +12,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@atcute/bluesky": "^2.0.2",
-    "@atcute/bluesky-richtext-builder": "^2.0.0",
-    "@atcute/client": "^3.0.1",
     "@skyware/bot": "^0.3.11",
     "@skyware/jetstream": "^0.2.2",
     "dotenv": "^16.5.0",
