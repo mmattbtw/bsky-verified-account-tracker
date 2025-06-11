@@ -15,6 +15,7 @@ const YAHOO_FINANCE_VERIFIED_LIST = "3lpsimccolk2p";
 const GLOBAL_MAIL_VERIFIED_LIST = "3lpsimsbai22p";
 const CNN_VERIFIED_LIST = "3lpsin5ibqc2p";
 const LA_TIMES_VERIFIED_LIST = "3lpsints3js2p";
+const IGN_VERIFIED_LIST = "3lrdq5yralk2v";
 
 const ALL_VERIFIED_LIST = "3lngcmewutk2z";
 
@@ -289,4 +290,32 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
       subject: event.commit.record.subject,
     });
   }
+
+  // IGN
+  if (event.did === "did:plc:xwqgusybtrpm67tcwqdfmzvy") {
+    const richText = new RichText()
+      .addText("✅ ")
+      // @ts-ignore
+      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
+      .addText(" has been verified by ")
+      .addMention(`@ign.com`, "did:plc:xwqgusybtrpm67tcwqdfmzvy")
+      .addText(".");
+    await bot.post({
+      text: richText,
+    });
+  }
+
+  // All Verified Accounts List
+  await bot.createRecord("app.bsky.graph.listitem", {
+    list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${ALL_VERIFIED_LIST}`,
+    // @ts-ignore
+    subject: event.commit.record.subject,
+  });
+
+  // IGN Verified Accounts List
+  await bot.createRecord("app.bsky.graph.listitem", {
+    list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${IGN_VERIFIED_LIST}`,
+    // @ts-ignore
+    subject: event.commit.record.subject,
+  });
 });
