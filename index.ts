@@ -303,19 +303,19 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
     await bot.post({
       text: richText,
     });
+
+    // All Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${ALL_VERIFIED_LIST}`,
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
+
+    // IGN Verified Accounts List
+    await bot.createRecord("app.bsky.graph.listitem", {
+      list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${IGN_VERIFIED_LIST}`,
+      // @ts-ignore
+      subject: event.commit.record.subject,
+    });
   }
-
-  // All Verified Accounts List
-  await bot.createRecord("app.bsky.graph.listitem", {
-    list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${ALL_VERIFIED_LIST}`,
-    // @ts-ignore
-    subject: event.commit.record.subject,
-  });
-
-  // IGN Verified Accounts List
-  await bot.createRecord("app.bsky.graph.listitem", {
-    list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${IGN_VERIFIED_LIST}`,
-    // @ts-ignore
-    subject: event.commit.record.subject,
-  });
 });
