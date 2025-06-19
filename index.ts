@@ -45,7 +45,7 @@ jetstream.start();
 jetstream.onCreate("app.bsky.graph.verification", async (event) => {
   console.log(event);
   // Save the current cursor to file
-  writeFileSync("cursor.txt", event.time_us.toString());
+  writeFileSync("cursor.txt", (event.time_us + 1).toString());
 
   // Bluesky
   if (event.did === "did:plc:z72i7hdynmk6r22z27h6tvur") {
