@@ -84,7 +84,7 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
 
   const backlinks = (await (
     await fetch(
-      `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&collection=app.bsky.graph.verification&path=.subject`
+      `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&from_dids=${BSKY_DID}&collection=app.bsky.graph.verification&path=.subject`
     )
   ).json()) as BacklinkResponse;
 
