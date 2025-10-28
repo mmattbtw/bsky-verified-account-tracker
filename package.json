@@ -5,16 +5,26 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
-    "dev": "tsc --watch --project tsconfig.json"
+    "dev": "tsc --watch --project tsconfig.json",
+    "backfill": "tsx backfill.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node dist/src/db/migrate.js",
+    "db:studio": "drizzle-kit studio"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/ws": "^8.18.1",
-    "typescript": "^5.9.2"
+    "drizzle-kit": "^0.31.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@atproto/api": "^0.17.0",
     "@skyware/bot": "^0.4.0",
     "@skyware/jetstream": "^0.2.5",
-    "dotenv": "^17.2.2",
+    "better-sqlite3": "^12.4.1",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.5",
     "ws": "^8.18.3"
   },
   "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"

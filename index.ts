@@ -1,8 +1,10 @@
 import { Bot, RichText } from "@skyware/bot";
 import { Jetstream } from "@skyware/jetstream";
 import { configDotenv } from "dotenv";
+import { and, eq } from "drizzle-orm";
 import { readFileSync, writeFileSync } from "fs";
 import WebSocket from "ws";
+import { db, posts, verifiedUsers } from "./src/db/index.js";
 
 configDotenv();
 
@@ -45,6 +47,18 @@ type BacklinkResponse = {
   cursor?: string;
 };
 
+type VerificationEvent = {
+  did: string;
+  time_us: number;
+  commit: {
+    record: {
+      $type: "app.bsky.graph.verification";
+      handle: string;
+      subject: string;
+    };
+  };
+};
+
 // should probably just make this redis  but whateva
 let handleResolutions = new Map<`did:${string}`, string>();
 
@@ -57,6 +71,58 @@ async function resolveDID(did: `did:${string}`): Promise<string> {
   const handle = (await bot.getProfile(did)).handle;
   handleResolutions.set(did, handle);
   return handle;
+}
+
+async function hasAlreadyPostedVerification(
+  subjectDid: string,
+  verifierDid: string
+): Promise<boolean> {
+  const existingVerification = await db
+    .select()
+    .from(verifiedUsers)
+    .where(
+      and(
+        eq(verifiedUsers.subjectDid, subjectDid),
+        eq(verifiedUsers.verifierDid, verifierDid)
+      )
+    )
+    .limit(1);
+
+  return existingVerification.length > 0;
+}
+
+async function recordVerification(
+  subjectDid: string,
+  verifierDid: string,
+  verifiedAt: number,
+  postUri: string
+): Promise<void> {
+  try {
+    // Insert verification record (will fail if duplicate due to primary key constraint)
+    await db.insert(verifiedUsers).values({
+      subjectDid,
+      verifierDid,
+      verifiedAt,
+      createdAt: new Date(),
+    });
+
+    // Record the post
+    await db.insert(posts).values({
+      subjectDid,
+      verifierDid,
+      postUri,
+      createdAt: new Date(),
+    });
+
+    console.log(
+      `Recorded verification: ${subjectDid} verified by ${verifierDid}`
+    );
+  } catch (error) {
+    console.log(
+      `Verification already recorded for ${subjectDid} by ${verifierDid}`
+    );
+    throw error; // Re-throw to indicate this is a duplicate
+  }
 }
 
 const bot = new Bot({
@@ -99,62 +165,109 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
   }
 
   if (backlinks.linking_dids.includes(BSKY_DID) || event.did == BSKY_DID) {
-    const richText = new RichText().addText("✅ ");
+    const subjectDid = (event.commit.record as any).subject;
+    const verifierDid = event.did;
 
-    if (IS_DEV) {
-      // @ts-ignore
-      richText
-        // @ts-ignore
-        .addText(`@${event.commit.record.handle}`)
-        .addText(" has been verified by ")
-        .addText(`@${await resolveDID(event.did)}`)
-        .addText(".");
-    } else {
-      // @ts-ignore
-      richText
-        .addMention(
-          // @ts-ignore
-          `@${event.commit.record.handle}`,
-          // @ts-ignore
-          event.commit.record.subject
-        )
-        .addText(" has been verified by ")
-        // @ts-ignore
-        .addMention(`@${await resolveDID(event.did)}`, event.did)
-        .addText(".");
+    // Check if we've already posted about this verification
+    const alreadyPosted = await hasAlreadyPostedVerification(
+      subjectDid,
+      verifierDid
+    );
+    if (alreadyPosted) {
+      console.log(
+        `Already posted verification for ${subjectDid} by ${verifierDid}, skipping...`
+      );
+      return;
     }
-    await bot.post({
-      text: richText,
-    });
 
-    // All Verified Accounts List
-    await bot.createRecord("app.bsky.graph.listitem", {
-      list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${ALL_VERIFIED_LIST}`,
-      // @ts-ignore
-      subject: event.commit.record.subject,
-    });
+    try {
+      const isDev = process.env.NODE_ENV === "development";
+      const subjectHandle = (event.commit.record as any).handle;
+      const verifierHandle = await resolveDID(event.did as `did:${string}`);
 
-    const verifiedList = VERIFIED_LISTS[event.did];
-    if (verifiedList) {
+      const richText = new RichText();
+
+      if (isDev) {
+        richText
+          .addText("✅ ")
+          .addText(`@${subjectHandle}`)
+          .addText(" has been verified by ")
+          .addText(`@${verifierHandle}`)
+          .addText(".");
+      } else {
+        richText
+          .addText("✅ ")
+          .addMention(
+            `@${subjectHandle}`,
+            (event.commit.record as any).subject as `did:${string}:${string}`
+          )
+          .addText(" has been verified by ")
+          .addMention(
+            `@${verifierHandle}`,
+            event.did as `did:${string}:${string}`
+          )
+          .addText(".");
+      }
+
+      const postResult = await bot.post({
+        text: richText,
+      });
+
+      // Record the verification and post in database
+      await recordVerification(
+        subjectDid,
+        verifierDid,
+        event.time_us,
+        postResult.uri
+      );
+
+      // All Verified Accounts List
       await bot.createRecord("app.bsky.graph.listitem", {
-        list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${verifiedList}`,
-        // @ts-ignore
-        subject: event.commit.record.subject,
+        list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${ALL_VERIFIED_LIST}`,
+        subject: (event.commit.record as any)
+          .subject as `did:${string}:${string}`,
       });
-    } else {
-      console.log(`No verified list found for DID: ${event.did}`);
-      const convoID = await bot.getConversationForMembers([
-        "did:plc:tas6hj2xjrqben5653v5kohk",
-      ]);
-      await convoID.sendMessage({
-        text: IS_DEV
-          ? new RichText()
-              .addText("No verified list found for ")
-              .addText(`@${event.did}`)
-          : new RichText()
-              .addText("No verified list found for ")
-              .addMention(`@${event.did}`, event.did),
-      });
+
+      const verifiedList = VERIFIED_LISTS[event.did as `did:${string}`];
+      if (verifiedList) {
+        await bot.createRecord("app.bsky.graph.listitem", {
+          list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${verifiedList}`,
+          subject: (event.commit.record as any)
+            .subject as `did:${string}:${string}`,
+        });
+      } else {
+        console.log(`No verified list found for DID: ${event.did}`);
+        const convoID = await bot.getConversationForMembers([
+          "did:plc:tas6hj2xjrqben5653v5kohk",
+        ]);
+
+        const errorText = new RichText();
+        if (isDev) {
+          errorText
+            .addText("No verified list found for ")
+            .addText(`@${event.did}`);
+        } else {
+          errorText
+            .addText("No verified list found for ")
+            .addMention(
+              `@${event.did}`,
+              event.did as `did:${string}:${string}`
+            );
+        }
+
+        await convoID.sendMessage({
+          text: errorText,
+        });
+      }
+    } catch (error: any) {
+      if (error.message?.includes("UNIQUE constraint failed")) {
+        console.log(
+          `Duplicate verification detected for ${subjectDid} by ${verifierDid}, skipping...`
+        );
+        return;
+      }
+      console.error("Error posting verification:", error);
+      throw error;
     }
   }
 });
