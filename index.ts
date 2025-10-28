@@ -34,6 +34,11 @@ const ALL_VERIFIED_LIST = "3lngcmewutk2z";
 
 const BSKY_DID = "did:plc:z72i7hdynmk6r22z27h6tvur";
 
+const IS_DEV =
+  process.env.NODE_ENV === "development" || process.env.DEV === "true";
+
+console.log(`${IS_DEV ? "🟢" : "🔴"} DEV MODE`);
+
 type BacklinkResponse = {
   total: number;
   linking_dids: string[];
@@ -94,15 +99,30 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
   }
 
   if (backlinks.linking_dids.includes(BSKY_DID) || event.did == BSKY_DID) {
-    const richText = new RichText()
-      .addText("✅ ")
+    const richText = new RichText().addText("✅ ");
+
+    if (IS_DEV) {
       // @ts-ignore
-      .addMention(`@${event.commit.record.handle}`, event.commit.record.subject)
-      // .addText(`@${event.commit.record.handle}`)
-      .addText(" has been verified by ")
-      .addMention(`@${await resolveDID(event.did)}`, event.did)
-      // .addText(`@${await resolveDID(event.did)}`)
-      .addText(".");
+      richText
+        // @ts-ignore
+        .addText(`@${event.commit.record.handle}`)
+        .addText(" has been verified by ")
+        .addText(`@${await resolveDID(event.did)}`)
+        .addText(".");
+    } else {
+      // @ts-ignore
+      richText
+        .addMention(
+          // @ts-ignore
+          `@${event.commit.record.handle}`,
+          // @ts-ignore
+          event.commit.record.subject
+        )
+        .addText(" has been verified by ")
+        // @ts-ignore
+        .addMention(`@${await resolveDID(event.did)}`, event.did)
+        .addText(".");
+    }
     await bot.post({
       text: richText,
     });
@@ -127,9 +147,13 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
         "did:plc:tas6hj2xjrqben5653v5kohk",
       ]);
       await convoID.sendMessage({
-        text: new RichText()
-          .addText("No verified list found for ")
-          .addMention(`@${event.did}`, event.did),
+        text: IS_DEV
+          ? new RichText()
+              .addText("No verified list found for ")
+              .addText(`@${event.did}`)
+          : new RichText()
+              .addText("No verified list found for ")
+              .addMention(`@${event.did}`, event.did),
       });
     }
   }
