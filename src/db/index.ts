@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { posts, verifiedUsers } from "./schema.js";
+import { listItems, posts, verifiedUsers } from "./schema.js";
 
 const sqlite = new Database("verified-accounts.db");
 export const db = drizzle(sqlite);
@@ -22,6 +22,16 @@ sqlite.exec(`
     post_uri TEXT NOT NULL,
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
   );
+
+  CREATE TABLE IF NOT EXISTS list_items (
+    subject_did TEXT NOT NULL,
+    verifier_did TEXT NOT NULL,
+    list_did TEXT NOT NULL,
+    list_uri TEXT NOT NULL,
+    added_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    PRIMARY KEY (subject_did, verifier_did, list_did)
+  );
 `);
 
-export { posts, verifiedUsers };
+export { listItems, posts, verifiedUsers };

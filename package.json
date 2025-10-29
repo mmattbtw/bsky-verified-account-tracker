@@ -6,7 +6,8 @@
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsc --watch --project tsconfig.json",
-    "backfill": "tsx backfill.ts",
+    "backfill:posts": "tsx backfill-posts.ts",
+    "backfill:lists": "tsx backfill-lists.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node dist/src/db/migrate.js",
     "db:studio": "drizzle-kit studio"
