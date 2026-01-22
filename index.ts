@@ -248,28 +248,72 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
             .subject as `did:${string}:${string}`,
         });
       } else {
-        console.log(`No verified list found for DID: ${event.did}`);
-        const convoID = await bot.getConversationForMembers([
-          "did:plc:tas6hj2xjrqben5653v5kohk",
-        ]);
-
-        const errorText = new RichText();
-        if (isDev) {
-          errorText
-            .addText("No verified list found for ")
-            .addText(`@${event.did}`);
-        } else {
-          errorText
-            .addText("No verified list found for ")
-            .addMention(
-              `@${event.did}`,
-              event.did as `did:${string}:${string}`
-            );
-        }
-
-        await convoID.sendMessage({
-          text: errorText,
+        console.log(`No verified list found for DID: ${event.did}, creating new list...`);
+        
+        // Create a new list for this verifier
+        const listName = `Verified by ${verifierHandle}`;
+        const listResult = await bot.createRecord("app.bsky.graph.list", {
+          name: listName,
+          purpose: "app.bsky.graph.defs#curatelist",
+          description: "",
         });
+
+        // Extract list ID from URI (format: at://did:plc:.../app.bsky.graph.list/[LIST_ID])
+        const listUri = listResult.uri;
+        const listIdMatch = listUri.match(/app\.bsky\.graph\.list\/([^/]+)$/);
+        const newListId = listIdMatch ? listIdMatch[1] : null;
+
+        if (newListId) {
+          // Add the user to the newly created list
+          await bot.createRecord("app.bsky.graph.listitem", {
+            list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${newListId}`,
+            subject: (event.commit.record as any)
+              .subject as `did:${string}:${string}`,
+          });
+
+          console.log(`Created new list "${listName}" with ID: ${newListId}`);
+
+          // DM to update the code
+          const convoID = await bot.getConversationForMembers([
+            "did:plc:tas6hj2xjrqben5653v5kohk",
+          ]);
+
+          const updateText = new RichText();
+          const constantName = listName
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "_")
+            .replace(/_+/g, "_")
+            .replace(/^_|_$/g, "") + "_VERIFIED_LIST";
+          
+          if (isDev) {
+            updateText
+              .addText("New list created for ")
+              .addText(`@${verifierHandle}`)
+              .addText(`\n\nVerifier DID: ${event.did}\n`)
+              .addText(`List ID: ${newListId}\n\n`)
+              .addText("Add to code:\n")
+              .addText(`const ${constantName} = "${newListId}";\n`)
+              .addText(`"${event.did}": ${constantName},`);
+          } else {
+            updateText
+              .addText("New list created for ")
+              .addMention(
+                `@${verifierHandle}`,
+                event.did as `did:${string}:${string}`
+              )
+              .addText(`\n\nVerifier DID: ${event.did}\n`)
+              .addText(`List ID: ${newListId}\n\n`)
+              .addText("Add to code:\n")
+              .addText(`const ${constantName} = "${newListId}";\n`)
+              .addText(`"${event.did}": ${constantName},`);
+          }
+
+          await convoID.sendMessage({
+            text: updateText,
+          });
+        } else {
+          console.error(`Failed to extract list ID from URI: ${listUri}`);
+        }
       }
     } catch (error: any) {
       if (error.message?.includes("UNIQUE constraint failed")) {
