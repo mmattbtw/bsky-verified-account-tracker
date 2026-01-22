@@ -25,6 +25,12 @@ const VERIFIER_DIDS = [
   "did:plc:d2jith367s6ybc3ldsusgdae", // LA Times
   "did:plc:dzezcmpb3fhcpns4n4xm4ur5", // CNN
   "did:plc:xwqgusybtrpm67tcwqdfmzvy", // IGN
+  "did:plc:hbdc3q6k5lforao5vyuarvsp", // Rest of World
+  "did:plc:oxo226vi7t2btjokm2buusoy", // European Commission
+  "did:plc:2w45zyhuklwihpdc7oj3mi63", // Forbes
+  "did:plc:ofbkqcjzvm6gtwuufsubnkaf", // MS NOW
+  "did:plc:rk25gdgk3cnnmtkvlae265nz", // City of Toronto
+  "did:plc:j4eroku3volozvv6ljsnnfec", // HuffPost
 ];
 
 // Cache for resolved PDS servers

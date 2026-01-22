@@ -15,6 +15,12 @@ const GLOBAL_MAIL_VERIFIED_LIST = "3lpsimsbai22p";
 const CNN_VERIFIED_LIST = "3lpsin5ibqc2p";
 const LA_TIMES_VERIFIED_LIST = "3lpsints3js2p";
 const IGN_VERIFIED_LIST = "3lrdq5yralk2v";
+const REST_OF_WORLD_VERIFIED_LIST = "3mcy6uxiul227";
+const EUROPEAN_COMMISSION_VERIFIED_LIST = "3mcy6vazask27";
+const FORBES_VERIFIED_LIST = "3mcy6vhkrv227";
+const MS_NOW_VERIFIED_LIST = "3mcy6vnpvis27";
+const CITY_OF_TORONTO_VERIFIED_LIST = "3mcy6vvbkvk27";
+const HUFFPOST_VERIFIED_LIST = "3mcy6w3y26k27";
 
 const VERIFIED_LISTS = {
   "did:plc:z72i7hdynmk6r22z27h6tvur": BSKY_VERIFIED_LIST,
@@ -27,6 +33,12 @@ const VERIFIED_LISTS = {
   "did:plc:d2jith367s6ybc3ldsusgdae": LA_TIMES_VERIFIED_LIST,
   "did:plc:dzezcmpb3fhcpns4n4xm4ur5": CNN_VERIFIED_LIST,
   "did:plc:xwqgusybtrpm67tcwqdfmzvy": IGN_VERIFIED_LIST,
+  "did:plc:hbdc3q6k5lforao5vyuarvsp": REST_OF_WORLD_VERIFIED_LIST,
+  "did:plc:oxo226vi7t2btjokm2buusoy": EUROPEAN_COMMISSION_VERIFIED_LIST,
+  "did:plc:2w45zyhuklwihpdc7oj3mi63": FORBES_VERIFIED_LIST,
+  "did:plc:ofbkqcjzvm6gtwuufsubnkaf": MS_NOW_VERIFIED_LIST,
+  "did:plc:rk25gdgk3cnnmtkvlae265nz": CITY_OF_TORONTO_VERIFIED_LIST,
+  "did:plc:j4eroku3volozvv6ljsnnfec": HUFFPOST_VERIFIED_LIST,
 } as Record<`did:${string}`, string>;
 
 const ALL_VERIFIED_LIST = "3lngcmewutk2z";
@@ -44,6 +56,12 @@ const VERIFIER_DIDS = [
   "did:plc:d2jith367s6ybc3ldsusgdae", // LA Times
   "did:plc:dzezcmpb3fhcpns4n4xm4ur5", // CNN
   "did:plc:xwqgusybtrpm67tcwqdfmzvy", // IGN
+  "did:plc:hbdc3q6k5lforao5vyuarvsp", // Rest of World
+  "did:plc:oxo226vi7t2btjokm2buusoy", // European Commission
+  "did:plc:2w45zyhuklwihpdc7oj3mi63", // Forbes
+  "did:plc:ofbkqcjzvm6gtwuufsubnkaf", // MS NOW
+  "did:plc:rk25gdgk3cnnmtkvlae265nz", // City of Toronto
+  "did:plc:j4eroku3volozvv6ljsnnfec", // HuffPost
 ];
 
 type VerificationRecord = {
