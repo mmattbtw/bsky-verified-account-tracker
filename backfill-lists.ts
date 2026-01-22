@@ -202,24 +202,59 @@ async function hasAlreadyAddedToList(
     return true;
   }
 
-  // Then check Constellation to see if the list item already exists on Bluesky
+  // Then check Constellation to see if the list item already exists in the specific list
   try {
-    const response = await fetch(
-      `https://constellation.microcosm.blue/links/distinct-dids?target=${subjectDid}&from_dids=${LIST_OWNER_DID}&collection=app.bsky.graph.listitem&path=.subject`
-    );
+    const listUri = `at://${LIST_OWNER_DID}/app.bsky.graph.list/${listDid}`;
+    
+    // Query Constellation to check if LIST_OWNER_DID has already added this subject to this specific list
+    // We'll fetch list items and check if any match both the subject and list
+    let cursor: string | undefined;
+    let found = false;
 
-    if (!response.ok) {
-      // If Constellation check fails, assume not in list
-      return false;
+    while (!found) {
+      const url = new URL(
+        `https://constellation.microcosm.blue/records`
+      );
+      url.searchParams.set("repo", LIST_OWNER_DID);
+      url.searchParams.set("collection", "app.bsky.graph.listitem");
+      url.searchParams.set("limit", "100");
+      if (cursor) {
+        url.searchParams.set("cursor", cursor);
+      }
+
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        // If Constellation check fails, assume not in list
+        break;
+      }
+
+      const data = await response.json();
+      const records = data.records || [];
+
+      // Check if any list item matches both the subject and the specific list
+      found = records.some((record: any) => {
+        const value = record.value;
+        return (
+          value?.subject === subjectDid &&
+          value?.list === listUri
+        );
+      });
+
+      if (found) {
+        console.log(
+          `✅ Found existing list item in Constellation: ${subjectDid} in list ${listDid}`
+        );
+        return true;
+      }
+
+      cursor = data.cursor;
+      if (!cursor) {
+        break;
+      }
     }
 
-    const data = (await response.json()) as ConstellationResponse;
-
-    // If LIST_OWNER_DID has linking records, the item is already in the list
-    // We check that linking_dids includes LIST_OWNER_DID to ensure it's our list
-    return (
-      data.linking_dids.length > 0 && data.linking_dids.includes(LIST_OWNER_DID)
-    );
+    return false;
   } catch (error) {
     // If Constellation check fails, assume not in list
     console.log(
