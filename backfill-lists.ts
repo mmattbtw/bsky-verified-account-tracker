@@ -21,6 +21,7 @@ const FORBES_VERIFIED_LIST = "3mcy6vhkrv227";
 const MS_NOW_VERIFIED_LIST = "3mcy6vnpvis27";
 const CITY_OF_TORONTO_VERIFIED_LIST = "3mcy6vvbkvk27";
 const HUFFPOST_VERIFIED_LIST = "3mcy6w3y26k27";
+const CNBC_VERIFIED_LIST = "3megzeaqpjs24";
 
 const VERIFIED_LISTS = {
   "did:plc:z72i7hdynmk6r22z27h6tvur": BSKY_VERIFIED_LIST,
@@ -39,6 +40,7 @@ const VERIFIED_LISTS = {
   "did:plc:ofbkqcjzvm6gtwuufsubnkaf": MS_NOW_VERIFIED_LIST,
   "did:plc:rk25gdgk3cnnmtkvlae265nz": CITY_OF_TORONTO_VERIFIED_LIST,
   "did:plc:j4eroku3volozvv6ljsnnfec": HUFFPOST_VERIFIED_LIST,
+  "did:plc:m7ks2xhfuku7errrtfjux2lg": CNBC_VERIFIED_LIST,
 } as Record<`did:${string}`, string>;
 
 const ALL_VERIFIED_LIST = "3lngcmewutk2z";
@@ -62,6 +64,7 @@ const VERIFIER_DIDS = [
   "did:plc:ofbkqcjzvm6gtwuufsubnkaf", // MS NOW
   "did:plc:rk25gdgk3cnnmtkvlae265nz", // City of Toronto
   "did:plc:j4eroku3volozvv6ljsnnfec", // HuffPost
+  "did:plc:m7ks2xhfuku7errrtfjux2lg", // CNBC
 ];
 
 type VerificationRecord = {
@@ -110,8 +113,8 @@ async function resolveDidToPds(did: string): Promise<string> {
   try {
     const response = await fetch(
       `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(
-        did
-      )}`
+        did,
+      )}`,
     );
 
     if (!response.ok) {
@@ -133,7 +136,7 @@ async function resolveDidToPds(did: string): Promise<string> {
 
 async function fetchVerificationRecords(
   verifierDid: string,
-  cursor?: string
+  cursor?: string,
 ): Promise<{ records: VerificationRecord[]; cursor?: string }> {
   try {
     // Resolve the DID to get the correct PDS server
@@ -171,7 +174,7 @@ async function fetchVerificationRecords(
     };
   } catch (error) {
     console.log(
-      `⚠️  Failed to fetch verification records for ${verifierDid}: ${error}`
+      `⚠️  Failed to fetch verification records for ${verifierDid}: ${error}`,
     );
     return {
       records: [],
@@ -183,7 +186,7 @@ async function fetchVerificationRecords(
 async function hasAlreadyAddedToList(
   subjectDid: string,
   verifierDid: string,
-  listDid: string
+  listDid: string,
 ): Promise<boolean> {
   // First check database
   const existing = await db
@@ -193,8 +196,8 @@ async function hasAlreadyAddedToList(
       and(
         eq(listItems.subjectDid, subjectDid),
         eq(listItems.verifierDid, verifierDid),
-        eq(listItems.listDid, listDid)
-      )
+        eq(listItems.listDid, listDid),
+      ),
     )
     .limit(1);
 
@@ -205,16 +208,14 @@ async function hasAlreadyAddedToList(
   // Then check Constellation to see if the list item already exists in the specific list
   try {
     const listUri = `at://${LIST_OWNER_DID}/app.bsky.graph.list/${listDid}`;
-    
+
     // Query Constellation to check if LIST_OWNER_DID has already added this subject to this specific list
     // We'll fetch list items and check if any match both the subject and list
     let cursor: string | undefined;
     let found = false;
 
     while (!found) {
-      const url = new URL(
-        `https://constellation.microcosm.blue/records`
-      );
+      const url = new URL(`https://constellation.microcosm.blue/records`);
       url.searchParams.set("repo", LIST_OWNER_DID);
       url.searchParams.set("collection", "app.bsky.graph.listitem");
       url.searchParams.set("limit", "100");
@@ -235,15 +236,12 @@ async function hasAlreadyAddedToList(
       // Check if any list item matches both the subject and the specific list
       found = records.some((record: any) => {
         const value = record.value;
-        return (
-          value?.subject === subjectDid &&
-          value?.list === listUri
-        );
+        return value?.subject === subjectDid && value?.list === listUri;
       });
 
       if (found) {
         console.log(
-          `✅ Found existing list item in Constellation: ${subjectDid} in list ${listDid}`
+          `✅ Found existing list item in Constellation: ${subjectDid} in list ${listDid}`,
         );
         return true;
       }
@@ -258,7 +256,7 @@ async function hasAlreadyAddedToList(
   } catch (error) {
     // If Constellation check fails, assume not in list
     console.log(
-      `⚠️  Failed to check Constellation for ${subjectDid} in list ${listDid}: ${error}`
+      `⚠️  Failed to check Constellation for ${subjectDid} in list ${listDid}: ${error}`,
     );
     return false;
   }
@@ -268,7 +266,7 @@ async function addToList(
   subjectDid: string,
   verifierDid: string,
   listId: string,
-  verifiedAt: number
+  verifiedAt: number,
 ): Promise<string | null> {
   try {
     // Use bot.createRecord which uses putRecord internally and handles auth
@@ -292,7 +290,7 @@ async function addToList(
     });
 
     console.log(
-      `✅ Added ${subjectDid} to list ${listId} (verified by ${verifierDid})`
+      `✅ Added ${subjectDid} to list ${listId} (verified by ${verifierDid})`,
     );
     return listUri;
   } catch (error: any) {
@@ -321,7 +319,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
     while (true) {
       const { records, cursor: nextCursor } = await fetchVerificationRecords(
         verifierDid,
-        cursor
+        cursor,
       );
 
       if (records.length === 0) {
@@ -339,7 +337,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
         const allVerifiedAlreadyAdded = await hasAlreadyAddedToList(
           subjectDid,
           verifierDid,
-          ALL_VERIFIED_LIST
+          ALL_VERIFIED_LIST,
         );
 
         if (!allVerifiedAlreadyAdded) {
@@ -347,7 +345,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
             subjectDid,
             verifierDid,
             ALL_VERIFIED_LIST,
-            verifiedAt
+            verifiedAt,
           );
           if (uri) {
             totalAdded++;
@@ -364,7 +362,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
           const verifierListAlreadyAdded = await hasAlreadyAddedToList(
             subjectDid,
             verifierDid,
-            verifiedList
+            verifiedList,
           );
 
           if (!verifierListAlreadyAdded) {
@@ -372,7 +370,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
               subjectDid,
               verifierDid,
               verifiedList,
-              verifiedAt
+              verifiedAt,
             );
             if (uri) {
               totalAdded++;
@@ -398,7 +396,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
     }
 
     console.log(
-      `✅ Completed backfill for ${verifierDid}: ${totalAdded}/${totalProcessed} new list items`
+      `✅ Completed backfill for ${verifierDid}: ${totalAdded}/${totalProcessed} new list items`,
     );
   } catch (error) {
     console.error(`❌ Error backfilling ${verifierDid}:`, error);

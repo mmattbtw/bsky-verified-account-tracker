@@ -24,6 +24,7 @@ const FORBES_VERIFIED_LIST = "3mcy6vhkrv227";
 const MS_NOW_VERIFIED_LIST = "3mcy6vnpvis27";
 const CITY_OF_TORONTO_VERIFIED_LIST = "3mcy6vvbkvk27";
 const HUFFPOST_VERIFIED_LIST = "3mcy6w3y26k27";
+const CNBC_VERIFIED_LIST = "3megzeaqpjs24";
 
 const VERIFIED_LISTS = {
   "did:plc:z72i7hdynmk6r22z27h6tvur": BSKY_VERIFIED_LIST,
@@ -42,6 +43,7 @@ const VERIFIED_LISTS = {
   "did:plc:ofbkqcjzvm6gtwuufsubnkaf": MS_NOW_VERIFIED_LIST,
   "did:plc:rk25gdgk3cnnmtkvlae265nz": CITY_OF_TORONTO_VERIFIED_LIST,
   "did:plc:j4eroku3volozvv6ljsnnfec": HUFFPOST_VERIFIED_LIST,
+  "did:plc:m7ks2xhfuku7errrtfjux2lg": CNBC_VERIFIED_LIST,
 } as Record<`did:${string}`, string>;
 
 const ALL_VERIFIED_LIST = "3lngcmewutk2z";
@@ -87,7 +89,7 @@ async function resolveDID(did: `did:${string}`): Promise<string> {
 
 async function hasAlreadyPostedVerification(
   subjectDid: string,
-  verifierDid: string
+  verifierDid: string,
 ): Promise<boolean> {
   const existingVerification = await db
     .select()
@@ -95,8 +97,8 @@ async function hasAlreadyPostedVerification(
     .where(
       and(
         eq(verifiedUsers.subjectDid, subjectDid),
-        eq(verifiedUsers.verifierDid, verifierDid)
-      )
+        eq(verifiedUsers.verifierDid, verifierDid),
+      ),
     )
     .limit(1);
 
@@ -107,7 +109,7 @@ async function recordVerification(
   subjectDid: string,
   verifierDid: string,
   verifiedAt: number,
-  postUri: string
+  postUri: string,
 ): Promise<void> {
   try {
     // Insert verification record (will fail if duplicate due to primary key constraint)
@@ -127,11 +129,11 @@ async function recordVerification(
     });
 
     console.log(
-      `Recorded verification: ${subjectDid} verified by ${verifierDid}`
+      `Recorded verification: ${subjectDid} verified by ${verifierDid}`,
     );
   } catch (error) {
     console.log(
-      `Verification already recorded for ${subjectDid} by ${verifierDid}`
+      `Verification already recorded for ${subjectDid} by ${verifierDid}`,
     );
     throw error; // Re-throw to indicate this is a duplicate
   }
@@ -167,7 +169,7 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
 
   const backlinks = (await (
     await fetch(
-      `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&from_dids=${BSKY_DID}&collection=app.bsky.graph.verification&path=.subject`
+      `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&from_dids=${BSKY_DID}&collection=app.bsky.graph.verification&path=.subject`,
     )
   ).json()) as BacklinkResponse;
 
@@ -183,11 +185,11 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
     // Check if we've already posted about this verification
     const alreadyPosted = await hasAlreadyPostedVerification(
       subjectDid,
-      verifierDid
+      verifierDid,
     );
     if (alreadyPosted) {
       console.log(
-        `Already posted verification for ${subjectDid} by ${verifierDid}, skipping...`
+        `Already posted verification for ${subjectDid} by ${verifierDid}, skipping...`,
       );
       return;
     }
@@ -211,12 +213,12 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
           .addText("✅ ")
           .addMention(
             `@${subjectHandle}`,
-            (event.commit.record as any).subject as `did:${string}:${string}`
+            (event.commit.record as any).subject as `did:${string}:${string}`,
           )
           .addText(" has been verified by ")
           .addMention(
             `@${verifierHandle}`,
-            event.did as `did:${string}:${string}`
+            event.did as `did:${string}:${string}`,
           )
           .addText(".");
       }
@@ -230,7 +232,7 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
         subjectDid,
         verifierDid,
         event.time_us,
-        postResult.uri
+        postResult.uri,
       );
 
       // All Verified Accounts List
@@ -248,8 +250,10 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
             .subject as `did:${string}:${string}`,
         });
       } else {
-        console.log(`No verified list found for DID: ${event.did}, creating new list...`);
-        
+        console.log(
+          `No verified list found for DID: ${event.did}, creating new list...`,
+        );
+
         // Create a new list for this verifier
         const listName = `Verified by ${verifierHandle}`;
         const listResult = await bot.createRecord("app.bsky.graph.list", {
@@ -279,12 +283,13 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
           ]);
 
           const updateText = new RichText();
-          const constantName = listName
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, "_")
-            .replace(/_+/g, "_")
-            .replace(/^_|_$/g, "") + "_VERIFIED_LIST";
-          
+          const constantName =
+            listName
+              .toUpperCase()
+              .replace(/[^A-Z0-9]/g, "_")
+              .replace(/_+/g, "_")
+              .replace(/^_|_$/g, "") + "_VERIFIED_LIST";
+
           if (isDev) {
             updateText
               .addText("New list created for ")
@@ -299,7 +304,7 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
               .addText("New list created for ")
               .addMention(
                 `@${verifierHandle}`,
-                event.did as `did:${string}:${string}`
+                event.did as `did:${string}:${string}`,
               )
               .addText(`\n\nVerifier DID: ${event.did}\n`)
               .addText(`List ID: ${newListId}\n\n`)
@@ -318,7 +323,7 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
     } catch (error: any) {
       if (error.message?.includes("UNIQUE constraint failed")) {
         console.log(
-          `Duplicate verification detected for ${subjectDid} by ${verifierDid}, skipping...`
+          `Duplicate verification detected for ${subjectDid} by ${verifierDid}, skipping...`,
         );
         return;
       }

@@ -31,6 +31,7 @@ const VERIFIER_DIDS = [
   "did:plc:ofbkqcjzvm6gtwuufsubnkaf", // MS NOW
   "did:plc:rk25gdgk3cnnmtkvlae265nz", // City of Toronto
   "did:plc:j4eroku3volozvv6ljsnnfec", // HuffPost
+  "did:plc:m7ks2xhfuku7errrtfjux2lg", // CNBC
 ];
 
 // Cache for resolved PDS servers
@@ -45,8 +46,8 @@ async function resolveDidToPds(did: string): Promise<string> {
   try {
     const response = await fetch(
       `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(
-        did
-      )}`
+        did,
+      )}`,
     );
 
     if (!response.ok) {
@@ -68,7 +69,7 @@ async function resolveDidToPds(did: string): Promise<string> {
 
 async function fetchVerificationRecords(
   verifierDid: string,
-  cursor?: string
+  cursor?: string,
 ): Promise<{ records: VerificationRecord[]; cursor?: string }> {
   try {
     // Resolve the DID to get the correct PDS server
@@ -106,7 +107,7 @@ async function fetchVerificationRecords(
     };
   } catch (error) {
     console.log(
-      `⚠️  Failed to fetch verification records for ${verifierDid}: ${error}`
+      `⚠️  Failed to fetch verification records for ${verifierDid}: ${error}`,
     );
     return {
       records: [],
@@ -117,7 +118,7 @@ async function fetchVerificationRecords(
 
 async function hasAlreadyRecorded(
   subjectDid: string,
-  verifierDid: string
+  verifierDid: string,
 ): Promise<boolean> {
   const existing = await db
     .select()
@@ -125,8 +126,8 @@ async function hasAlreadyRecorded(
     .where(
       and(
         eq(verifiedUsers.subjectDid, subjectDid),
-        eq(verifiedUsers.verifierDid, verifierDid)
-      )
+        eq(verifiedUsers.verifierDid, verifierDid),
+      ),
     )
     .limit(1);
 
@@ -136,7 +137,7 @@ async function hasAlreadyRecorded(
 async function recordVerification(
   subjectDid: string,
   verifierDid: string,
-  verifiedAt: number
+  verifiedAt: number,
 ): Promise<void> {
   try {
     // Insert verification record
@@ -148,11 +149,11 @@ async function recordVerification(
     });
 
     console.log(
-      `✅ Recorded verification: ${subjectDid} verified by ${verifierDid}`
+      `✅ Recorded verification: ${subjectDid} verified by ${verifierDid}`,
     );
   } catch (error) {
     console.log(
-      `⚠️  Verification already recorded for ${subjectDid} by ${verifierDid}`
+      `⚠️  Verification already recorded for ${subjectDid} by ${verifierDid}`,
     );
   }
 }
@@ -168,7 +169,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
     while (true) {
       const { records, cursor: nextCursor } = await fetchVerificationRecords(
         verifierDid,
-        cursor
+        cursor,
       );
 
       if (records.length === 0) {
@@ -185,7 +186,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
         // Check if we've already recorded this verification
         const alreadyRecorded = await hasAlreadyRecorded(
           subjectDid,
-          verifierDid
+          verifierDid,
         );
         if (alreadyRecorded) {
           console.log(`⏭️  Skipping already recorded: ${subjectDid}`);
@@ -210,7 +211,7 @@ async function backfillVerifier(verifierDid: string): Promise<void> {
     }
 
     console.log(
-      `✅ Completed backfill for ${verifierDid}: ${totalRecorded}/${totalProcessed} new records`
+      `✅ Completed backfill for ${verifierDid}: ${totalRecorded}/${totalProcessed} new records`,
     );
   } catch (error) {
     console.error(`❌ Error backfilling ${verifierDid}:`, error);
@@ -233,7 +234,7 @@ async function main() {
       .from(verifiedUsers);
 
     console.log(
-      `📊 Total verifications in database: ${totalVerifications.length}`
+      `📊 Total verifications in database: ${totalVerifications.length}`,
     );
   } catch (error) {
     console.error("❌ Backfill failed:", error);
