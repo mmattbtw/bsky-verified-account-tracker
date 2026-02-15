@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { readFileSync, writeFileSync } from "fs";
 import WebSocket from "ws";
 import { db, posts, verifiedUsers } from "./src/db/index.js";
+import { isBlacklistedVerifierDid } from "./src/verifiers.js";
 
 configDotenv();
 
@@ -167,6 +168,11 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
   // Save the current cursor to file
   writeFileSync("cursor.txt", event.time_us.toString());
 
+  if (isBlacklistedVerifierDid(event.did)) {
+    console.log(`Verifier ${event.did} is blacklisted, skipping verification.`);
+    return;
+  }
+
   const backlinks = (await (
     await fetch(
       `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&from_dids=${BSKY_DID}&collection=app.bsky.graph.verification&path=.subject`,
@@ -268,6 +274,9 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
         const newListId = listIdMatch ? listIdMatch[1] : null;
 
         if (newListId) {
+          // Cache newly created list in-memory to avoid recreating it in this runtime.
+          VERIFIED_LISTS[event.did as `did:${string}`] = newListId;
+
           // Add the user to the newly created list
           await bot.createRecord("app.bsky.graph.listitem", {
             list: `at://did:plc:k3lft27u2pjqp2ptidkne7xr/app.bsky.graph.list/${newListId}`,

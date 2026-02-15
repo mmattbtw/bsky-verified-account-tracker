@@ -1,6 +1,7 @@
 import { configDotenv } from "dotenv";
 import { and, eq } from "drizzle-orm";
 import { db, verifiedUsers } from "./src/db/index.js";
+import { isBlacklistedVerifierDid } from "./src/verifiers.js";
 
 configDotenv();
 
@@ -223,6 +224,11 @@ async function main() {
 
   try {
     for (const verifierDid of VERIFIER_DIDS) {
+      if (isBlacklistedVerifierDid(verifierDid)) {
+        console.log(`⏭️  Skipping blacklisted verifier: ${verifierDid}`);
+        continue;
+      }
+
       await backfillVerifier(verifierDid);
     }
 
