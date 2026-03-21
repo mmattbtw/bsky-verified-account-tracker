@@ -2,7 +2,10 @@ import { Bot } from "@skyware/bot";
 import { configDotenv } from "dotenv";
 import { and, eq } from "drizzle-orm";
 import { db, listItems } from "./src/db/index.js";
-import { isBlacklistedVerifierDid } from "./src/verifiers.js";
+import {
+  isBlacklistedVerifierDid,
+  isTrustedVerifierDid,
+} from "./src/verifiers.js";
 
 configDotenv();
 
@@ -411,6 +414,11 @@ async function backfillLists() {
     for (const verifierDid of VERIFIER_DIDS) {
       if (isBlacklistedVerifierDid(verifierDid)) {
         console.log(`⏭️  Skipping blacklisted verifier: ${verifierDid}`);
+        continue;
+      }
+
+      if (!(await isTrustedVerifierDid(verifierDid))) {
+        console.log(`⏭️  Skipping untrusted verifier: ${verifierDid}`);
         continue;
       }
 

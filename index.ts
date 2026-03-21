@@ -5,7 +5,10 @@ import { and, eq } from "drizzle-orm";
 import { readFileSync, writeFileSync } from "fs";
 import WebSocket from "ws";
 import { db, posts, verifiedUsers } from "./src/db/index.js";
-import { isBlacklistedVerifierDid } from "./src/verifiers.js";
+import {
+  isBlacklistedVerifierDid,
+  isTrustedVerifierDid,
+} from "./src/verifiers.js";
 
 configDotenv();
 
@@ -170,6 +173,13 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
 
   if (isBlacklistedVerifierDid(event.did)) {
     console.log(`Verifier ${event.did} is blacklisted, skipping verification.`);
+    return;
+  }
+
+  if (!(await isTrustedVerifierDid(event.did))) {
+    console.log(
+      `Verifier ${event.did} is not a trusted verifier, skipping verification.`,
+    );
     return;
   }
 
