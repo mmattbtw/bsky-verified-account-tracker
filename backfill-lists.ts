@@ -1,6 +1,7 @@
 import { Bot } from "@skyware/bot";
 import { configDotenv } from "dotenv";
 import { and, eq } from "drizzle-orm";
+import { fetchConstellation } from "./src/constellation.js";
 import { db, listItems } from "./src/db/index.js";
 import {
   isBlacklistedVerifierDid,
@@ -219,15 +220,12 @@ async function hasAlreadyAddedToList(
     let found = false;
 
     while (!found) {
-      const url = new URL(`https://constellation.microcosm.blue/records`);
-      url.searchParams.set("repo", LIST_OWNER_DID);
-      url.searchParams.set("collection", "app.bsky.graph.listitem");
-      url.searchParams.set("limit", "100");
-      if (cursor) {
-        url.searchParams.set("cursor", cursor);
-      }
-
-      const response = await fetch(url.toString());
+      const response = await fetchConstellation("/records", {
+        repo: LIST_OWNER_DID,
+        collection: "app.bsky.graph.listitem",
+        limit: "100",
+        cursor,
+      });
 
       if (!response.ok) {
         // If Constellation check fails, assume not in list

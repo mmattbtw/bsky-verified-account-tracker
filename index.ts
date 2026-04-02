@@ -4,6 +4,7 @@ import { configDotenv } from "dotenv";
 import { and, eq } from "drizzle-orm";
 import { readFileSync, writeFileSync } from "fs";
 import WebSocket from "ws";
+import { fetchConstellationJson } from "./src/constellation.js";
 import { db, posts, verifiedUsers } from "./src/db/index.js";
 import {
   isBlacklistedVerifierDid,
@@ -183,11 +184,15 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
     return;
   }
 
-  const backlinks = (await (
-    await fetch(
-      `https://constellation.microcosm.blue/links/distinct-dids?target=${event.did}&from_dids=${BSKY_DID}&collection=app.bsky.graph.verification&path=.subject`,
-    )
-  ).json()) as BacklinkResponse;
+  const backlinks = await fetchConstellationJson<BacklinkResponse>(
+    "/links/distinct-dids",
+    {
+      target: event.did,
+      from_dids: BSKY_DID,
+      collection: "app.bsky.graph.verification",
+      path: ".subject",
+    },
+  );
 
   if (backlinks.linking_dids.length == 0 && !(event.did == BSKY_DID)) {
     console.log("No backlinks found, skipping verification.");
