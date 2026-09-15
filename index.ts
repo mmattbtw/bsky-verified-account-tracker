@@ -79,17 +79,26 @@ type VerificationEvent = {
 };
 
 // should probably just make this redis  but whateva
-let handleResolutions = new Map<`did:${string}`, string>();
+type ResolvedProfile = {
+  handle: string;
+  displayName?: string;
+};
 
-async function resolveDID(did: `did:${string}`): Promise<string> {
-  if (handleResolutions.has(did)) {
+let profileResolutions = new Map<`did:${string}`, ResolvedProfile>();
+
+async function resolveProfile(did: `did:${string}`): Promise<ResolvedProfile> {
+  if (profileResolutions.has(did)) {
     console.log(":) CACHE HIT ", did);
-    return handleResolutions.get(did) as string;
+    return profileResolutions.get(did) as ResolvedProfile;
   }
   console.log(":( CACHE MISS ", did);
-  const handle = (await bot.getProfile(did)).handle;
-  handleResolutions.set(did, handle);
-  return handle;
+  const profile = await bot.getProfile(did);
+  const resolved = {
+    handle: profile.handle,
+    displayName: profile.displayName,
+  };
+  profileResolutions.set(did, resolved);
+  return resolved;
 }
 
 async function hasAlreadyPostedVerification(
@@ -217,21 +226,27 @@ jetstream.onCreate("app.bsky.graph.verification", async (event) => {
 
     try {
       const isDev = process.env.NODE_ENV === "development";
-      const subjectHandle = (event.commit.record as any).handle;
-      const verifierHandle = await resolveDID(event.did as `did:${string}`);
+      const subjectProfile = await resolveProfile(subjectDid as `did:${string}`);
+      const subjectHandle = subjectProfile.handle;
+      const subjectDisplayName = subjectProfile.displayName;
+      const { handle: verifierHandle } = await resolveProfile(
+        event.did as `did:${string}`,
+      );
 
       const richText = new RichText();
 
       if (isDev) {
         richText
           .addText("✅ ")
-          .addText(`@${subjectHandle}`)
+          .addText(subjectDisplayName ? `${subjectDisplayName} ` : "")
+          .addText(`(@${subjectHandle})`)
           .addText(" has been verified by ")
           .addText(`@${verifierHandle}`)
           .addText(".");
       } else {
         richText
           .addText("✅ ")
+          .addText(subjectDisplayName ? `${subjectDisplayName} ` : "")
           .addMention(
             `@${subjectHandle}`,
             (event.commit.record as any).subject as `did:${string}:${string}`,
