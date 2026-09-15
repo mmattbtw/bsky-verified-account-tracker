@@ -1,7 +1,6 @@
 import { Bot } from "@skyware/bot";
 import { configDotenv } from "dotenv";
 import { and, eq } from "drizzle-orm";
-import { fetchConstellation } from "./src/constellation.js";
 import { db, listItems } from "./src/db/index.js";
 import {
   isBlacklistedVerifierDid,
@@ -81,12 +80,6 @@ type VerificationRecord = {
   };
 };
 
-type ConstellationResponse = {
-  total: number;
-  linking_dids: string[];
-  cursor?: string;
-};
-
 let bot: Bot | null = null;
 
 async function getBot(): Promise<Bot> {
@@ -108,26 +101,32 @@ async function getBot(): Promise<Bot> {
 
 // Cache for resolved PDS servers
 const pdsCache = new Map<string, string>();
+const listMembershipCache = new Map<string, Set<string>>();
+
+type PlcDidDocument = {
+  service?: Array<{
+    id?: string;
+    type?: string;
+    serviceEndpoint?: string;
+  }>;
+};
 
 async function resolveDidToPds(did: string): Promise<string> {
-  // Check cache first
   if (pdsCache.has(did)) {
     return pdsCache.get(did)!;
   }
 
   try {
-    const response = await fetch(
-      `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(
-        did,
-      )}`,
-    );
+    const response = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    const pds = data.pds || "https://bsky.social";
+    const data = (await response.json()) as PlcDidDocument;
+    const pds =
+      data.service?.find((service) => service.id === "#atproto_pds")
+        ?.serviceEndpoint || "https://bsky.social";
     pdsCache.set(did, pds);
     console.log(`🔍 Resolved ${did} to PDS: ${pds}`);
     return pds;
@@ -210,58 +209,60 @@ async function hasAlreadyAddedToList(
     return true;
   }
 
-  // Then check Constellation to see if the list item already exists in the specific list
-  try {
-    const listUri = `at://${LIST_OWNER_DID}/app.bsky.graph.list/${listDid}`;
+  const existingSubjects = await loadExistingListSubjects(listDid);
+  const alreadyInList = existingSubjects.has(subjectDid);
 
-    // Query Constellation to check if LIST_OWNER_DID has already added this subject to this specific list
-    // We'll fetch list items and check if any match both the subject and list
-    let cursor: string | undefined;
-    let found = false;
+  if (alreadyInList) {
+    console.log(`✅ Found existing remote list item: ${subjectDid} in list ${listDid}`);
+  }
 
-    while (!found) {
-      const response = await fetchConstellation("/records", {
-        repo: LIST_OWNER_DID,
-        collection: "app.bsky.graph.listitem",
-        limit: "100",
-        cursor,
-      });
+  return alreadyInList;
+}
 
-      if (!response.ok) {
-        // If Constellation check fails, assume not in list
-        break;
-      }
+async function loadExistingListSubjects(listDid: string): Promise<Set<string>> {
+  const cached = listMembershipCache.get(listDid);
+  if (cached) {
+    return cached;
+  }
 
-      const data = await response.json();
-      const records = data.records || [];
+  const subjects = new Set<string>();
+  const listUri = `at://${LIST_OWNER_DID}/app.bsky.graph.list/${listDid}`;
+  const pds = await resolveDidToPds(LIST_OWNER_DID);
+  let cursor: string | undefined;
 
-      // Check if any list item matches both the subject and the specific list
-      found = records.some((record: any) => {
-        const value = record.value;
-        return value?.subject === subjectDid && value?.list === listUri;
-      });
+  while (true) {
+    const url = new URL(`${pds}/xrpc/com.atproto.repo.listRecords`);
+    url.searchParams.set("repo", LIST_OWNER_DID);
+    url.searchParams.set("collection", "app.bsky.graph.listitem");
+    url.searchParams.set("limit", "100");
+    if (cursor) {
+      url.searchParams.set("cursor", cursor);
+    }
 
-      if (found) {
-        console.log(
-          `✅ Found existing list item in Constellation: ${subjectDid} in list ${listDid}`,
-        );
-        return true;
-      }
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
 
-      cursor = data.cursor;
-      if (!cursor) {
-        break;
+    const data = await response.json();
+    const records = data.records || [];
+
+    for (const record of records) {
+      const value = record.value;
+      if (value?.list === listUri && typeof value?.subject === "string") {
+        subjects.add(value.subject);
       }
     }
 
-    return false;
-  } catch (error) {
-    // If Constellation check fails, assume not in list
-    console.log(
-      `⚠️  Failed to check Constellation for ${subjectDid} in list ${listDid}: ${error}`,
-    );
-    return false;
+    cursor = data.cursor;
+    if (!cursor) {
+      break;
+    }
   }
+
+  listMembershipCache.set(listDid, subjects);
+  console.log(`🔎 Loaded ${subjects.size} existing entries for list ${listDid}`);
+  return subjects;
 }
 
 async function addToList(
@@ -290,6 +291,13 @@ async function addToList(
       addedAt: verifiedAt,
       createdAt: new Date(),
     });
+
+    let cachedSubjects = listMembershipCache.get(listId);
+    if (!cachedSubjects) {
+      cachedSubjects = new Set<string>();
+      listMembershipCache.set(listId, cachedSubjects);
+    }
+    cachedSubjects.add(subjectDid);
 
     console.log(
       `✅ Added ${subjectDid} to list ${listId} (verified by ${verifierDid})`,

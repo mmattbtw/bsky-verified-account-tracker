@@ -9,6 +9,7 @@
     "audit:lists": "tsx audit-lists.ts",
     "fix:audit": "tsx fix-audit.ts",
     "backfill:posts": "tsx backfill-posts.ts",
+    "recover:posts": "tsx recover-missing-posts.ts",
     "backfill:lists": "tsx backfill-lists.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node dist/src/db/migrate.js",

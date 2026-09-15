@@ -38,25 +38,30 @@ const VERIFIER_DIDS = [
 // Cache for resolved PDS servers
 const pdsCache = new Map<string, string>();
 
+type PlcDidDocument = {
+  service?: Array<{
+    id?: string;
+    type?: string;
+    serviceEndpoint?: string;
+  }>;
+};
+
 async function resolveDidToPds(did: string): Promise<string> {
-  // Check cache first
   if (pdsCache.has(did)) {
     return pdsCache.get(did)!;
   }
 
   try {
-    const response = await fetch(
-      `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(
-        did,
-      )}`,
-    );
+    const response = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    const pds = data.pds || "https://bsky.social";
+    const data = (await response.json()) as PlcDidDocument;
+    const pds =
+      data.service?.find((service) => service.id === "#atproto_pds")
+        ?.serviceEndpoint || "https://bsky.social";
     pdsCache.set(did, pds);
     console.log(`🔍 Resolved ${did} to PDS: ${pds}`);
     return pds;
